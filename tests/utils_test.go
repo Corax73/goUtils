@@ -236,3 +236,19 @@ func TestCheckPasswordHash(t *testing.T) {
 		t.Log("Done with passwordInvalid")
 	}
 }
+
+func TestClearStringOfCharacters(t *testing.T) {
+	oldStr := "123abc/{}"
+	characters := []string{"1", "a", "{"}
+	validResultStr := "23bc/}"
+	if validResultStr == goutils.ClearStringOfCharacters(oldStr, characters) {
+		t.Log("Done with validResultStr")
+	} else {
+		t.Errorf("Result was incorrect with validResultStr")
+	}
+	if oldStr == goutils.ClearStringOfCharacters(oldStr, characters) {
+		t.Errorf("Result was incorrect with oldStr as result")
+	} else {
+		t.Log("Done with oldStr as result")
+	}
+}
