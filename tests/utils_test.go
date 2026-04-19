@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	goutils "github.com/Corax73/goUtils"
+	goutilsCurl "github.com/Corax73/goUtils/curl"
 )
 
 func TestGetConfFromEnvFile(t *testing.T) {
@@ -251,4 +252,8 @@ func TestClearStringOfCharacters(t *testing.T) {
 	} else {
 		t.Log("Done with oldStr as result")
 	}
+}
+
+func TestParseCurlString(t *testing.T) {
+	goutilsCurl.ParseCurlString(`curl -X POST -H "Content-Type: application/json" -d '{"city":"paris"}' https://api.weather.com/forecast`)
 }
