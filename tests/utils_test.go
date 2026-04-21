@@ -255,5 +255,5 @@ func TestClearStringOfCharacters(t *testing.T) {
 }
 
 func TestParseCurlString(t *testing.T) {
-	goutilsCurl.ParseCurlString(`curl -X POST -H "Content-Type: application/json" -d '{"city":"paris"}' https://api.weather.com/forecast`)
+	goutilsCurl.ParseCurlString(`curl -X POST --head -H "Content-Type: application/json" -H "Accept: application/json" -d '{"city":"paris"}' https://api.weather.com/forecast`)
 }
