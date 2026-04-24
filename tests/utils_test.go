@@ -255,5 +255,41 @@ func TestClearStringOfCharacters(t *testing.T) {
 }
 
 func TestParseCurlString(t *testing.T) {
-	goutilsCurl.ParseCurlString(`curl -X POST --head -H "Content-Type: application/json" -H "Accept: application/json" -d '{"city":"paris"}' https://api.weather.com/forecast`)
+	requestStruct := goutilsCurl.ParseCurlString(`curl -X POST -H "Content-Type: application/json" --header "Referer: http://www.example.com/" -d '{"city":"paris"}' https://api.weather.com/forecast`)
+	var hasErr bool
+	if requestStruct.Method != "POST" {
+		t.Errorf("Method was incorrect")
+		hasErr = true
+	}
+	if requestStruct.Url != "https://api.weather.com/forecast" {
+		t.Errorf("Url was incorrect")
+		hasErr = true
+	}
+	if requestStruct.Data != `{"city":"paris"}` {
+		t.Errorf("Data was incorrect")
+		hasErr = true
+	}
+	if v, ok := requestStruct.Headers["Content-Type"]; ok {
+		if v != "application/json" {
+			t.Errorf("Header `Content-Type` was incorrect")
+			hasErr = true
+		}
+	} else {
+		t.Errorf("Header `Content-Type` is missing")
+		hasErr = true
+	}
+	if v, ok := requestStruct.Headers["Referer"]; ok {
+		if v != "http://www.example.com/" {
+			t.Errorf("Header `Referer` was incorrect")
+			hasErr = true
+		}
+	} else {
+		t.Errorf("Header `Referer` is missing")
+		hasErr = true
+	}
+	if hasErr {
+		t.Errorf("Result was incorrect")
+	} else {
+		t.Log("Done")
+	}
 }

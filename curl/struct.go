@@ -29,3 +29,8 @@ var headerKeys = []string{
 	"-H",
 	"--header",
 }
+
+var dataKeys = []string{
+	"-d",
+	"--data",
+}

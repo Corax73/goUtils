@@ -25,7 +25,7 @@ func ParseCurlString(str string) *Request {
 			if slices.Contains(headerKeys, v) {
 				match, _ := regexp.MatchString(":$", strSlice[i+1])
 				if match {
-					headersSlice = append(headersSlice, goutils.ConcatSlice([]string{strSlice[i+1], strSlice[i+2]}))
+					headersSlice = append(headersSlice, goutils.ConcatSlice([]string{strings.Trim(strSlice[i+1], `"`), strings.Trim(strSlice[i+2], `"`)}))
 					usedIndexes = append(usedIndexes, i+2)
 				} else {
 					headersSlice = append(headersSlice, strSlice[i+1])
@@ -41,8 +41,7 @@ func ParseCurlString(str string) *Request {
 				parsedData[v] = strSlice[i+1]
 			}
 			usedIndexes = append(usedIndexes, i, i+1)
-		}
-		if !slices.Contains(usedIndexes, i) {
+		} else {
 			match, _ := regexp.MatchString(`^(http:\/\/|https:\/\/|\/|\/\/)`, v)
 			if match {
 				reqData.Url = v
@@ -60,10 +59,22 @@ func ParseCurlString(str string) *Request {
 		if k == "-X" || k == "--request" {
 			reqData.Method = v
 		}
+		if slices.Contains(dataKeys, k) {
+			reqData.Data = strings.Trim(v, "'")
+		}
 	}
 	for _, v := range headersSlice {
 		strHeader := strings.Split(v, ":")
-		reqData.Headers[strHeader[0]] = strHeader[1]
+		if len(strHeader) > 2 {
+			match, _ := regexp.MatchString(`^(http)`, strHeader[1])
+			if match {
+				reqData.Headers[strHeader[0]] = goutils.ConcatSlice([]string{strHeader[1], ":", goutils.ConcatSlice(strHeader[2:])})
+			} else {
+				reqData.Headers[strHeader[0]] = goutils.ConcatSlice(strHeader[1:])
+			}
+		} else {
+			reqData.Headers[strHeader[0]] = strHeader[1]
+		}
 	}
 	return &reqData
 }
