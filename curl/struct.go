@@ -2,7 +2,7 @@ package curl
 
 type Request struct {
 	Method, Url, Data string
-	Headers           map[string]string
+	Headers, Cookies  map[string]string
 }
 
 var validKeys = []string{
@@ -16,6 +16,8 @@ var validKeys = []string{
 	"--header",
 	"-d",
 	"--data",
+	"-b",
+	"--cookie",
 }
 
 var requestMethods = []string{
@@ -33,4 +35,9 @@ var headerKeys = []string{
 var dataKeys = []string{
 	"-d",
 	"--data",
+}
+
+var cookieKeys = []string{
+	"-b",
+	"--cookie",
 }

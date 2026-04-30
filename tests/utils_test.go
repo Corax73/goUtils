@@ -255,7 +255,7 @@ func TestClearStringOfCharacters(t *testing.T) {
 }
 
 func TestParseCurlString(t *testing.T) {
-	requestStruct := goutilsCurl.ParseCurlString(`curl -X POST -H "Content-Type: application/json" --header "Referer: http://www.example.com/" -d '{"city":"paris"}' "https://api.weather.com/forecast"`)
+	requestStruct := goutilsCurl.ParseCurlString(`curl -X POST -H 'Content-Type: application/json' --header "Referer: http://www.example.com/" -d "{"city":"paris"}" -b 'user_id=123; session_token=abc' "https://api.weather.com/forecast"`)
 	var hasErr bool
 	if requestStruct.Method != "POST" {
 		t.Errorf("Method was incorrect")
