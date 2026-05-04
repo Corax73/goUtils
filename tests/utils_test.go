@@ -255,13 +255,13 @@ func TestClearStringOfCharacters(t *testing.T) {
 }
 
 func TestParseCurlString(t *testing.T) {
-	requestStruct := goutilsCurl.ParseCurlString(`curl -X POST -H 'Content-Type: application/json' --header "Referer: http://www.example.com/" -d "{"city":"paris"}" -b 'user_id=123; session_token=abc' "https://api.weather.com/forecast"`)
+	requestStruct := goutilsCurl.ParseCurlString(`curl -X POST "http://www.example.com/" -H "accept: application/json" -H 'Content-Type: application/json' --header "Referer: http://www.example1.com/" -d "{"city":"paris"}" -b 'user_id=123; session_token=abc'`)
 	var hasErr bool
 	if requestStruct.Method != "POST" {
 		t.Errorf("Method was incorrect")
 		hasErr = true
 	}
-	if requestStruct.Url != "https://api.weather.com/forecast" {
+	if requestStruct.Url != "http://www.example.com/" {
 		t.Errorf("Url was incorrect")
 		hasErr = true
 	}
@@ -279,7 +279,7 @@ func TestParseCurlString(t *testing.T) {
 		hasErr = true
 	}
 	if v, ok := requestStruct.Headers["Referer"]; ok {
-		if v != "http://www.example.com/" {
+		if v != "http://www.example1.com/" {
 			t.Errorf("Header `Referer` was incorrect")
 			hasErr = true
 		}
@@ -291,5 +291,23 @@ func TestParseCurlString(t *testing.T) {
 		t.Errorf("Result was incorrect")
 	} else {
 		t.Log("Done")
+	}
+	if v, ok := requestStruct.Cookies["user_id"]; ok {
+		if v != "123" {
+			t.Errorf("Cookie `user_id` was incorrect")
+			hasErr = true
+		}
+	} else {
+		t.Errorf("Cookie `user_id` is missing")
+		hasErr = true
+	}
+	if v, ok := requestStruct.Cookies["session_token"]; ok {
+		if v != "abc" {
+			t.Errorf("Cookie `session_token` was incorrect")
+			hasErr = true
+		}
+	} else {
+		t.Errorf("Cookie `session_token` is missing")
+		hasErr = true
 	}
 }

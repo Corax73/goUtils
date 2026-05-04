@@ -19,58 +19,59 @@ func ParseCurlString(str string) *Request {
 	for i, v := range strSlice {
 		v = strings.Trim(v, `"`)
 		v = strings.Trim(v, `'`)
-		if !slices.Contains(usedIndexes, i) && slices.Contains(validKeys, v) {
-			if slices.Contains(requestMethods, v) {
-				parsedData[v] = ""
-				continue
-			}
+		if !slices.Contains(usedIndexes, i) {
+			if slices.Contains(validKeys, v) {
+				if slices.Contains(requestMethods, v) {
+					parsedData[v] = ""
+					continue
+				}
 
-			if slices.Contains(headerKeys, v) {
+				if slices.Contains(headerKeys, v) {
+					match, _ := regexp.MatchString(":$", strSlice[i+1])
+					if match {
+						headersSlice = append(
+							headersSlice,
+							goutils.ConcatSlice([]string{
+								strings.Trim(strings.Trim(strSlice[i+1], `"`), `'`),
+								strings.Trim(strings.Trim(strSlice[i+2], `"`), `'`),
+							}),
+						)
+						usedIndexes = append(usedIndexes, i+2)
+					} else {
+						headersSlice = append(headersSlice, strings.Trim(strings.Trim(strSlice[i+1], `"`), `'`))
+					}
+					continue
+				}
+
+				if slices.Contains(cookieKeys, v) {
+					for j := i + 1; j < len(strSlice); j++ {
+						strSliceCookie := strings.Split(strSlice[j], "=")
+						if len(strSliceCookie) > 1 {
+							key := strSliceCookie[0]
+							key = strings.Trim(strings.Trim(key, `"`), `'`)
+							val := strSliceCookie[1]
+							val = strings.Trim(strings.Trim(strings.Trim(val, `"`), `'`), `;`)
+							reqData.Cookies[key] = val
+						}
+						usedIndexes = append(usedIndexes, j)
+						matchByDouble, _ := regexp.MatchString(`"$`, strSlice[j])
+						matchBySingle, _ := regexp.MatchString(`'$`, strSlice[j])
+						if matchByDouble || matchBySingle {
+							break
+						}
+					}
+					continue
+				}
+
 				match, _ := regexp.MatchString(":$", strSlice[i+1])
 				if match {
-					headersSlice = append(
-						headersSlice,
-						goutils.ConcatSlice([]string{
-							strings.Trim(strings.Trim(strSlice[i+1], `"`), `'`),
-							strings.Trim(strings.Trim(strSlice[i+2], `"`), `'`),
-						}),
-					)
+					parsedData[v] = goutils.ConcatSlice([]string{strSlice[i+1], strSlice[i+2]})
 					usedIndexes = append(usedIndexes, i+2)
 				} else {
-					headersSlice = append(headersSlice, strings.Trim(strings.Trim(strSlice[i+1], `"`), `'`))
+					parsedData[v] = strSlice[i+1]
 				}
-				continue
+				usedIndexes = append(usedIndexes, i, i+1)
 			}
-
-			if slices.Contains(cookieKeys, v) {
-				for j := i + 1; j < len(strSlice); j++ {
-					strSliceCookie := strings.Split(strSlice[j], "=")
-					if len(strSliceCookie) > 1 {
-						key := strSliceCookie[0]
-						key = strings.Trim(strings.Trim(key, `"`), `'`)
-						val := strSliceCookie[1]
-						val = strings.Trim(strings.Trim(strings.Trim(val, `"`), `'`), `;`)
-						reqData.Cookies[key] = val
-					}
-					usedIndexes = append(usedIndexes, j)
-					matchByDouble, _ := regexp.MatchString(`"$`, strSlice[j])
-					matchBySingle, _ := regexp.MatchString(`'$`, strSlice[j])
-					if matchByDouble || matchBySingle {
-						break
-					}
-				}
-				continue
-			}
-
-			match, _ := regexp.MatchString(":$", strSlice[i+1])
-			if match {
-				parsedData[v] = goutils.ConcatSlice([]string{strSlice[i+1], strSlice[i+2]})
-				usedIndexes = append(usedIndexes, i+2)
-			} else {
-				parsedData[v] = strSlice[i+1]
-			}
-			usedIndexes = append(usedIndexes, i, i+1)
-		} else {
 			match, _ := regexp.MatchString(`^(http:\/\/|https:\/\/|\/|\/\/)`, v)
 			if match {
 				reqData.Url = v
