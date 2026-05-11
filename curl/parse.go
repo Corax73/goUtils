@@ -68,7 +68,7 @@ func ParseCurlString(str string) *Request {
 					parsedData[v] = goutils.ConcatSlice([]string{strSlice[i+1], strSlice[i+2]})
 					usedIndexes = append(usedIndexes, i+2)
 				} else {
-					parsedData[v] = strSlice[i+1]
+					parsedData[v] = strings.Trim(strings.Trim(strSlice[i+1], `"`), `'`)
 				}
 				usedIndexes = append(usedIndexes, i, i+1)
 			}
