@@ -255,7 +255,8 @@ func TestClearStringOfCharacters(t *testing.T) {
 }
 
 func TestParseCurlString(t *testing.T) {
-	requestStruct := goutilsCurl.ParseCurlString(`curl -X 'POST' "http://www.example.com/" -H "accept: application/json" -H 'Content-Type: application/json' --header "Referer: http://www.example1.com/" -d "{"city":"paris"}" -b 'user_id=123; session_token=abc'`)
+	requestStruct := goutilsCurl.ParseCurlString(`
+	curl -X 'POST' "http://www.example.com/" -H "accept: application/json" -H 'Content-Type: application/json' --header "Referer: http://www.example1.com/" -d "{"city":"paris"}" -b 'user_id=123; session_token=abc' --data-urlencode "page=1" --data-urlencode "page=2"`)
 	var hasErr bool
 	if requestStruct.Method != "POST" {
 		t.Errorf("Method was incorrect")
@@ -267,6 +268,14 @@ func TestParseCurlString(t *testing.T) {
 	}
 	if requestStruct.Data != `{"city":"paris"}` {
 		t.Errorf("Data was incorrect")
+		hasErr = true
+	}
+	if len(requestStruct.UrlencodeData) != 2 ||
+		requestStruct.UrlencodeData[0].Key != "page" ||
+		requestStruct.UrlencodeData[0].Value != "1" ||
+		requestStruct.UrlencodeData[1].Key != "page" ||
+		requestStruct.UrlencodeData[1].Value != "2" {
+		t.Errorf("Urlencode data was incorrect")
 		hasErr = true
 	}
 	if v, ok := requestStruct.Headers["Content-Type"]; ok {

@@ -3,6 +3,11 @@ package curl
 type Request struct {
 	Method, Url, Data string
 	Headers, Cookies  map[string]string
+	UrlencodeData     []UrlencodeData
+}
+
+type UrlencodeData struct {
+	Key, Value string
 }
 
 var validKeys = []string{
@@ -18,6 +23,7 @@ var validKeys = []string{
 	"--data",
 	"-b",
 	"--cookie",
+	"--data-urlencode",
 }
 
 var requestMethods = []string{
@@ -35,6 +41,7 @@ var headerKeys = []string{
 var dataKeys = []string{
 	"-d",
 	"--data",
+	"--data-urlencode",
 }
 
 var cookieKeys = []string{

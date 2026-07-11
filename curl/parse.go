@@ -12,10 +12,12 @@ func ParseCurlString(str string) *Request {
 	var reqData Request
 	reqData.Headers = make(map[string]string)
 	reqData.Cookies = make(map[string]string)
+	reqData.UrlencodeData = make([]UrlencodeData, 0)
 	headersSlice := make([]string, 0)
 	parsedData := make(map[string]string)
 	strSlice := strings.Split(str, " ")
 	usedIndexes := make([]int, 0)
+	urlencodeDataSlice := make([]string, 0)
 	for i, v := range strSlice {
 		v = strings.Trim(v, `"`)
 		v = strings.Trim(v, `'`)
@@ -68,7 +70,11 @@ func ParseCurlString(str string) *Request {
 					parsedData[v] = goutils.ConcatSlice([]string{strSlice[i+1], strSlice[i+2]})
 					usedIndexes = append(usedIndexes, i+2)
 				} else {
-					parsedData[v] = strings.Trim(strings.Trim(strSlice[i+1], `"`), `'`)
+					if v == "--data-urlencode" {
+						urlencodeDataSlice = append(urlencodeDataSlice, strings.Trim(strings.Trim(strSlice[i+1], `"`), `'`))
+					} else {
+						parsedData[v] = strings.Trim(strings.Trim(strSlice[i+1], `"`), `'`)
+					}
 				}
 				usedIndexes = append(usedIndexes, i, i+1)
 			}
@@ -106,6 +112,19 @@ func ParseCurlString(str string) *Request {
 			} else {
 				reqData.Headers[strSliceHeader[0]] = strSliceHeader[1]
 			}
+		}
+	}
+	for _, v := range urlencodeDataSlice {
+		strSliceUrlencode := strings.Split(v, "=")
+		if len(strSliceUrlencode) > 1 {
+			reqData.UrlencodeData = append(
+				reqData.UrlencodeData,
+				UrlencodeData{
+					Key:   strSliceUrlencode[0],
+					Value: strSliceUrlencode[1],
+				},
+			)
+
 		}
 	}
 	return &reqData
